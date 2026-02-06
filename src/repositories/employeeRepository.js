@@ -14,10 +14,10 @@ const EmployeeRepository = {
   },
 
   async create(data) {
-    const { name, email, password, designation } = data;
+    const {id, name, email, password, designation } = data;
     const { rows } = await db.query(
-      'INSERT INTO employees (name, email, password, designation) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, email, password, designation]
+      'INSERT INTO employees (id, name, email, password, designation) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [id, name, email, password, designation]
     );
     const r = rows[0];
     return new Employee(r.id, r.name, r.email, null, r.designation);
