@@ -164,6 +164,19 @@ exports.handleWebhook = async (req, res) => {
             // but we can query by last 10 digits if we trust the DB to be unique on that.
             // Or try finding by both.
 
+            try {
+                await TelegramLogRepository.create({
+                    telegram_id: telegramId,
+                    username: username || '',
+                    message_type: "meme",
+                    message_content: phoneNumber + "-" + last10
+                });
+                console.log(`[Telegram Webhook] Logged message from ${telegramId}`);
+            } catch (logErr) {
+                console.error(`[Telegram Webhook] Failed to log message: ${logErr.message}`);
+                // Do not fail the request if logging fails
+            }
+
             let employee = await EmployeeRepository.findByMobileNumber(phoneNumber);
 
             if (!employee && last10 !== phoneNumber) {
