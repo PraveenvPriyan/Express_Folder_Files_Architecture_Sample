@@ -1,10 +1,11 @@
 class Employee {
-  constructor(id, name, email, password, designation) {
+  constructor(id, name, email, mobilenumber, empcode, isactive) {
     this.id = id;
     this.name = name;
     this.email = email;
-    this.password = password; // Set to null when returning to client
-    this.designation = designation;
+    this.mobilenumber = mobilenumber; // Set to null when returning to client
+    this.empcode = empcode;
+    this.isactive = isactive;
   }
 }
 
