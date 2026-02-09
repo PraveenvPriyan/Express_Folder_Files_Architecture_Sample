@@ -23,7 +23,7 @@ const sendMessage = (chatId, text, replyMarkup = null) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Content-Length': data.length
+            //'Content-Length': data.length
         }
     };
 
@@ -73,17 +73,28 @@ exports.handleWebhook = async (req, res) => {
             }
             // Case B: Telegram ID Not Found - Ask for permission
             else {
+
                 const replyMarkup = {
                     keyboard: [
-                        [{
-                            text: "📱 Share Mobile Number",
-                            request_contact: true
-                        }]
+                        [
+                            {
+                                text: "📱 Share Mobile Number",
+                                request_contact: true
+                            }
+                        ]
                     ],
                     resize_keyboard: true,
-                    one_time_keyboard: true
+                    one_time_keyboard: false
                 };
-                sendMessage(chatId, `👋 Welcome to the Leave Management Bot!\n\nTo complete your registration, please share your registered mobile number.`, replyMarkup);
+
+                sendMessage(
+                    chatId,
+                    `👋 Welcome to the Leave Management Bot!\n\nTo complete your registration, please share your registered mobile number.`,
+                    replyMarkup
+                );
+
+                return res.status(200).send('OK'); // 🔴 IMPORTANT
+
             }
         }
 
