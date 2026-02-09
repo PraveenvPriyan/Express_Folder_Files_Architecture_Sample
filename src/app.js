@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const requestFilter = require('./middleware/requestFilter');
 const authRoutes = require('./routes/authRoutes');
@@ -15,4 +16,11 @@ app.use('/api/employee-tele-details', employeeTeleDetailsRoutes);
 app.use('/api/telegram', telegramRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    if (process.env.TELEGRAM_BOT_TOKEN) {
+        console.log('TELEGRAM_BOT_TOKEN is loaded.');
+    } else {
+        console.error('WARNING: TELEGRAM_BOT_TOKEN is NOT defined in .env');
+    }
+});

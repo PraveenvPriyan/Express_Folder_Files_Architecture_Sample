@@ -1,6 +1,7 @@
 const https = require('https');
 const EmployeeRepository = require('../repositories/employeeRepository');
 const EmployeeTeleDetailsRepository = require('../repositories/employeeTeleDetailsRepository');
+const TelegramLogRepository = require('../repositories/telegramLogRepository');
 
 // Helper to send messages to Telegram
 const sendMessage = (chatId, text, replyMarkup = null) => {
@@ -62,6 +63,32 @@ exports.handleWebhook = async (req, res) => {
         const telegramId = message.from.id;
         const username = message.from.username;
         const firstName = message.from.first_name;
+
+        // --- NEW: Log Message to DB ---
+        let messageType = 'unknown';
+        let messageContent = '';
+
+        if (message.text) {
+            messageType = 'text';
+            messageContent = message.text;
+        } else if (message.contact) {
+            messageType = 'contact';
+            messageContent = JSON.stringify(message.contact);
+        }
+
+        try {
+            await TelegramLogRepository.create({
+                telegram_id: telegramId,
+                username: username || '',
+                message_type: messageType,
+                message_content: messageContent
+            });
+            console.log(`[Telegram Webhook] Logged message from ${telegramId}`);
+        } catch (logErr) {
+            console.error(`[Telegram Webhook] Failed to log message: ${logErr.message}`);
+            // Do not fail the request if logging fails
+        }
+        // ------------------------------
 
         // 1. Handle /start command
         if (message.text === '/start') {
