@@ -23,12 +23,19 @@ const sendMessage = (chatId, text, replyMarkup = null) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            //'Content-Length': data.length
+            'Content-Length': Buffer.byteLength(data)
         }
     };
 
     const req = https.request(options, (res) => {
-        res.on('data', () => { }); // Consume response
+        let responseBody = '';
+        res.on('data', (chunk) => { responseBody += chunk; });
+        res.on('end', () => {
+            console.log(`[Telegram API] Status: ${res.statusCode}`);
+            if (res.statusCode >= 400) {
+                console.error(`[Telegram API] Error Body: ${responseBody}`);
+            }
+        });
     });
 
     req.on('error', (e) => {
@@ -101,45 +108,31 @@ exports.handleWebhook = async (req, res) => {
         // 2. Handle Contact Share
         else if (message.contact) {
             const contact = message.contact;
+            console.log(`[Telegram Webhook] Received Contact: ${JSON.stringify(contact)}`);
 
             // Validation: contact.user_id MUST match message.from.id
             if (contact.user_id !== telegramId) {
+                console.log(`[Telegram Webhook] Contact user_id mismatch: ${contact.user_id} !== ${telegramId}`);
                 sendMessage(chatId, "❌ Verification failed. Please share your own contact.");
                 return res.status(200).send('OK');
             }
 
             // Check Mobile Number in Employee Table
-            // Note: Telegram sends number with country code, e.g., "919876543210" or "+91..."
-            // Adjust matching logic if database stores it differently. 
-            // Assuming exact match or need to strip '+'? 
-            // For now, using raw phone number from contact.phone_number
-
             let phoneNumber = contact.phone_number;
             if (phoneNumber.startsWith('+')) {
                 phoneNumber = phoneNumber.substring(1);
             }
+            console.log(`[Telegram Webhook] Processing Phone Number: ${phoneNumber}`);
 
             // Try to find exact match or match specific formats if needed. 
-            // Trying exact match on phoneNumber provided by Telegram (usually has country code without + if we strip it, or with +)
-            // Let's rely on what the DB might have. If DB has "9876543210" and Telegram sends "919876543210", it won't match.
-            // Strict match for now as per "SELECT * FROM Employee WHERE mobile_no = :phone_number;"
-
-            // NOTE: Reverting to using the raw number or maybe trying both with/without + if needed.
-            // But let's assume standard format for now.
-
             const employee = await EmployeeRepository.findByMobileNumber(phoneNumber) || await EmployeeRepository.findByMobileNumber(contact.phone_number);
+            console.log(`[Telegram Webhook] Employee Lookup Result: ${employee ? 'Found' : 'Not Found'}`);
 
             // Case C: Employee Found
             if (employee) {
                 // Insert into Employee_tele_details
                 // isactive: 0 (Active)
                 await EmployeeTeleDetailsRepository.create({
-                    empcode: employee.empcode, // Using empcode from employee table to link? or just store logic? 
-                    // Wait, Employee_tele_details has `empcode` column, not `employee_id` FK in my previous file creation?
-                    // Re-checking `Employee_tele_details` model: it has `empcode`.
-                    // User prompt said "employee_id FK", but my model uses `empcode`.
-                    // The Repository `create` method expects: { empcode, telegramid, mobileno, ismatching, isactive, telegram_username }
-
                     empcode: employee.empcode,
                     telegramid: telegramId,
                     mobileno: phoneNumber,
