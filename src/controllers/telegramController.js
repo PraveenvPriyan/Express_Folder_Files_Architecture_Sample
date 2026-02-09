@@ -118,14 +118,32 @@ exports.handleWebhook = async (req, res) => {
             }
 
             // Check Mobile Number in Employee Table
-            let phoneNumber = contact.phone_number;
-            if (phoneNumber.startsWith('+')) {
-                phoneNumber = phoneNumber.substring(1);
-            }
-            console.log(`[Telegram Webhook] Processing Phone Number: ${phoneNumber}`);
+            // Check Mobile Number in Employee Table
+            let rawPhoneNumber = contact.phone_number;
+            // Remove spaces, dashes, parentheses, and plus sign
+            let phoneNumber = rawPhoneNumber.replace(/[^0-9]/g, '');
 
-            // Try to find exact match or match specific formats if needed. 
-            const employee = await EmployeeRepository.findByMobileNumber(phoneNumber) || await EmployeeRepository.findByMobileNumber(contact.phone_number);
+            console.log(`[Telegram Webhook] Raw Phone: ${rawPhoneNumber}, Cleaned: ${phoneNumber}`);
+
+            // Try multiple formats:
+            // 1. Exact match with cleaned number (e.g., 919876543210)
+            // 2. Without country code (last 10 digits) (e.g., 9876543210)
+
+            let last10 = phoneNumber.length >= 10 ? phoneNumber.slice(-10) : phoneNumber;
+
+            console.log(`[Telegram Webhook] Searching for: ${phoneNumber} or ${last10}`);
+
+            // Custom query logic might be needed if Repository only takes one arg, 
+            // but we can query by last 10 digits if we trust the DB to be unique on that.
+            // Or try finding by both.
+
+            let employee = await EmployeeRepository.findByMobileNumber(phoneNumber);
+
+            if (!employee && last10 !== phoneNumber) {
+                console.log(`[Telegram Webhook] Exact match failed, trying last 10 digits: ${last10}`);
+                employee = await EmployeeRepository.findByMobileNumber(last10);
+            }
+
             console.log(`[Telegram Webhook] Employee Lookup Result: ${employee ? 'Found' : 'Not Found'}`);
 
             // Case C: Employee Found
