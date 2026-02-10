@@ -9,8 +9,9 @@ const EmployeeTeleDetailsRepository = {
 
     async findById(id) {
         const { rows } = await db.query('SELECT id, empcode, telegramid, mobileno, ismatching, isactive, telegram_username FROM public."Employee_tele_details" WHERE id = $1', [id]);
+        if (rows.length === 0) return null;
         const r = rows[0];
-        return r ? new Employee_tele_details(r.id, r.empcode, r.telegramid, r.mobileno, r.ismatching, r.isactive, r.telegram_username) : null;
+        return new Employee_tele_details(r.id, r.empcode, r.telegramid, r.mobileno, r.ismatching, r.isactive, r.telegram_username);
     },
 
     async create(data) {
@@ -40,8 +41,9 @@ const EmployeeTeleDetailsRepository = {
 
     async findByTelegramId(telegramId) {
         const { rows } = await db.query('SELECT id, empcode, telegramid, mobileno, ismatching, isactive, telegram_username FROM public."Employee_tele_details" WHERE telegramid = $1', [telegramId]);
+        if (rows.length === 0) return null;
         const r = rows[0];
-        return r ? new Employee_tele_details(r.id, r.empcode, r.telegramid, r.mobileno, r.ismatching, r.isactive, r.telegram_username) : null;
+        return new Employee_tele_details(r.id, r.empcode, r.telegramid, r.mobileno, r.ismatching, r.isactive, r.telegram_username);
     }
 };
 

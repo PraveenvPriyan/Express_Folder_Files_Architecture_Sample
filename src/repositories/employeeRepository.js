@@ -3,14 +3,15 @@ const Employee = require('../models/employeeModel');
 
 const EmployeeRepository = {
   async findByEmail(email) {
-    const { rows } = await db.query('SELECT id, name, email, empcode, mobilenumber, isactive FROM public."Employee" WHERE email = $1', [email]);
+    const { rows } = await db.query('SELECT id, name, email, empcode, mobilenumber, isactive FROM public."Employee" WHERE TRIM(email) = $1', [email]);
+    if (rows.length === 0) return null;
     const r = rows[0];
-    return r ? new Employee(r.id, r.name, r.email, r.mobilenumber, r.empcode, r.isactive) : null;
+    return new Employee(r.id, r.name?.trim(), r.email?.trim(), r.mobilenumber?.trim(), r.empcode?.trim(), r.isactive);
   },
 
   async findAll() {
     const { rows } = await db.query('SELECT id, name, email, empcode, mobilenumber, isactive FROM public."Employee" ORDER BY id ASC');
-    return rows.map(r => new Employee(r.id, r.name, r.email, r.mobilenumber, r.empcode, r.isactive));
+    return rows.map(r => new Employee(r.id, r.name?.trim(), r.email?.trim(), r.mobilenumber?.trim(), r.empcode?.trim(), r.isactive));
   },
 
   async create(data) {
@@ -20,7 +21,7 @@ const EmployeeRepository = {
       [name, email, mobilenumber, empcode, isactive]
     );
     const r = rows[0];
-    return new Employee(r.id, r.name, r.email, r.mobilenumber, r.empcode, r.isactive);
+    return new Employee(r.id, r.name?.trim(), r.email?.trim(), r.mobilenumber?.trim(), r.empcode?.trim(), r.isactive);
   },
 
   async update(id, data) {
@@ -30,7 +31,7 @@ const EmployeeRepository = {
       [name, email, mobilenumber, empcode, isactive, id]
     );
     const r = rows[0];
-    return r ? new Employee(r.id, r.name, r.email, r.mobilenumber, r.empcode, r.isactive) : null;
+    return r ? new Employee(r.id, r.name?.trim(), r.email?.trim(), r.mobilenumber?.trim(), r.empcode?.trim(), r.isactive) : null;
   },
 
   async delete(id) {
@@ -39,9 +40,18 @@ const EmployeeRepository = {
   },
 
   async findByMobileNumber(mobileNumber) {
-    const { rows } = await db.query('SELECT id, name, email, empcode, mobilenumber, isactive FROM public."Employee" WHERE mobilenumber = $1', [mobileNumber]);
+    console.log(`[EmployeeRepository] findByMobileNumber searching for: '${mobileNumber}'`);
+    // Use REGEXP_REPLACE to remove ALL whitespace (spaces, tabs, newlines) from the DB column before comparison
+    const { rows } = await db.query('SELECT id, name, email, empcode, mobilenumber, isactive FROM public."Employee" WHERE REGEXP_REPLACE(mobilenumber, \'\\s+\', \'\', \'g\') = $1', [mobileNumber]);
+
+    if (rows.length === 0) {
+      console.log(`[EmployeeRepository] No employee found for mobile: ${mobileNumber}`);
+      return null;
+    }
+
     const r = rows[0];
-    return r ? new Employee(r.id, r.name, r.email, r.mobilenumber, r.empcode, r.isactive) : null;
+    console.log(`[EmployeeRepository] Found: ${r.mobilenumber}`);
+    return new Employee(r.id, r.name?.trim(), r.email?.trim(), r.mobilenumber?.trim(), r.empcode?.trim(), r.isactive);
   }
 };
 

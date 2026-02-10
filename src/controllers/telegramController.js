@@ -134,7 +134,7 @@ exports.handleWebhook = async (req, res) => {
 
         // 2. Handle Contact Share
         else if (message.contact) {
-            const contact = message.contact.trim();
+            const contact = message.contact;
             console.log(`[Telegram Webhook] Received Contact: ${JSON.stringify(contact)}`);
 
             // Validation: contact.user_id MUST match message.from.id
@@ -168,23 +168,32 @@ exports.handleWebhook = async (req, res) => {
                 await TelegramLogRepository.create({
                     telegram_id: telegramId,
                     username: username || '',
-                    message_type: "meme",
-                    message_content: phoneNumber + "-" + last10
+                    message_type: "contact_verification_attempt",
+                    message_content: `Input: ${phoneNumber}, Last10: ${last10}`
                 });
-                console.log(`[Telegram Webhook] Logged message from ${telegramId}`);
             } catch (logErr) {
-                console.error(`[Telegram Webhook] Failed to log message: ${logErr.message}`);
-                // Do not fail the request if logging fails
+                console.error(`[Telegram Webhook] Failed to log attempt: ${logErr.message}`);
             }
 
-            let employee = await EmployeeRepository.findByMobileNumber(phoneNumber.trim());
+            let employee = await EmployeeRepository.findByMobileNumber(phoneNumber);
 
             if (!employee && last10 !== phoneNumber) {
                 console.log(`[Telegram Webhook] Exact match failed, trying last 10 digits: ${last10}`);
                 employee = await EmployeeRepository.findByMobileNumber(last10);
             }
 
-            console.log(`[Telegram Webhook] Employee Lookup Result: ${employee ? 'Found' : 'Not Found'}`);
+            const status = employee ? 'Found' : 'Not Found';
+            console.log(`[Telegram Webhook] Employee Lookup Result: ${status}`);
+
+            // Log Outcome
+            try {
+                await TelegramLogRepository.create({
+                    telegram_id: telegramId,
+                    username: username || '',
+                    message_type: "contact_verification_result",
+                    message_content: `Status: ${status}, Employee: ${employee ? employee.empcode : 'N/A'}`
+                });
+            } catch (logErr) { console.error(logErr); }
 
             // Case C: Employee Found
             if (employee) {
