@@ -198,7 +198,7 @@ exports.handleWebhook = async (req, res) => {
             // Case D: Mobile Number Not Found
             if (!employee) {
                 sendMessage(chatId, `❌ Registration Failed\n\nThis mobile number (${phoneNumber}) is not registered in our employee system.\nPlease contact HR for assistance.`);
-                return res.status(200).send('OK');
+                //    return res.status(200).send('OK');
             } else {
                 // Case C: Employee Found
                 // Insert into Employee_tele_details
@@ -207,7 +207,7 @@ exports.handleWebhook = async (req, res) => {
                     empcode: employee.empcode,
                     telegramid: telegramId,
                     mobileno: phoneNumber,
-                    ismatching: true,
+                    ismatching: 0, // 0 = matching
                     isactive: 0, // 0 = active
                     telegram_username: username
                 });
@@ -221,7 +221,7 @@ exports.handleWebhook = async (req, res) => {
                 };
 
                 sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`, replyMarkup);
-                return res.status(200).send('OK');
+                ///       return res.status(200).send('OK');
             }
 
 
