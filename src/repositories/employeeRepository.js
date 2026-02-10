@@ -40,19 +40,50 @@ const EmployeeRepository = {
   },
 
   async findByMobileNumber(mobileNumber) {
-    console.log(`[EmployeeRepository] findByMobileNumber searching for: '${mobileNumber}'`);
-    // Use REGEXP_REPLACE to remove ALL whitespace (spaces, tabs, newlines) from the DB column before comparison
-    const { rows } = await db.query('SELECT id, name, email, empcode, mobilenumber, isactive FROM public."Employee" WHERE TRIM(REGEXP_REPLACE(mobilenumber, \'\\s+\', \'\', \'g\')) = $1', [mobileNumber]);
+    // 1️⃣ Normalize input (outside variable – VERY IMPORTANT)
+    const cleanMobile = mobileNumber
+      .toString()
+      .trim()
+      .replace(/\s+/g, '')   // remove all spaces
+      .replace(/^\+91/, '')  // remove +91
+      .replace(/^91/, '')    // remove 91
+      .slice(-10);           // keep last 10 digits only
 
+    console.log(`[EmployeeRepository] searching for normalized mobile: '${cleanMobile}'`);
+
+    // 2️⃣ Normalize DB value + compare LAST 10 digits
+    const query = `
+    SELECT id, name, email, empcode, mobilenumber, isactive
+    FROM public."Employee"
+    WHERE RIGHT(
+      REGEXP_REPLACE(mobilenumber::text, '\\s+', '', 'g'),
+      10
+    ) = $1
+  `;
+
+    const { rows } = await db.query(query, [cleanMobile]);
+
+    // 3️⃣ No result
     if (rows.length === 0) {
-      console.log(`[EmployeeRepository] No employee found for mobile: ${mobileNumber}`);
+      console.log(`[EmployeeRepository] No employee found for mobile: ${cleanMobile}`);
       return null;
     }
 
+    // 4️⃣ Success
     const r = rows[0];
-    console.log(`[EmployeeRepository] Found: ${r.mobilenumber}`);
-    return new Employee(r.id, r.name?.trim(), r.email?.trim(), r.mobilenumber?.trim(), r.empcode?.trim(), r.isactive);
+    console.log(`[EmployeeRepository] Found employee with DB mobile: '${r.mobilenumber}'`);
+
+    return new Employee(
+      r.id,
+      r.name?.trim(),
+      r.email?.trim(),
+      r.mobilenumber?.toString().trim(),
+      r.empcode?.trim(),
+      r.isactive
+    );
   }
+
+
 };
 
 module.exports = EmployeeRepository;
