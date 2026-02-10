@@ -103,7 +103,7 @@ exports.handleWebhook = async (req, res) => {
                     ],
                     resize_keyboard: true
                 };
-                sendMessage(chatId, `👋 Welcome ${firstName}!\n\nYou are already registered with the Leave Management System.\n\nPlease use the menu to:`, replyMarkup);
+                sendMessage(chatId, `👋 Welcome ${firstName}!\n\nYou are already registered with the Leave Management System.\n\nPlease use the menu to:`);
                 return res.status(200).send('OK');
             }
             // Case B: Telegram ID Not Found - Ask for permission
