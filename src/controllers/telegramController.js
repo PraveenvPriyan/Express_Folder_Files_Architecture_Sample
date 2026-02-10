@@ -96,7 +96,14 @@ exports.handleWebhook = async (req, res) => {
 
             // Case A: User Already Registered (isactive = 0 means active as per requirements)
             if (existingUser && existingUser.isactive === 0) {
-                sendMessage(chatId, `👋 Welcome ${firstName}!\n\nYou are already registered with the Leave Management System.\n\nPlease use the menu to:`);
+                const replyMarkup = {
+                    keyboard: [
+                        [{ text: "Apply Leave" }, { text: "View Leave Status" }],
+                        [{ text: "Leave Balance" }]
+                    ],
+                    resize_keyboard: true
+                };
+                sendMessage(chatId, `👋 Welcome ${firstName}!\n\nYou are already registered with the Leave Management System.\n\nPlease use the menu to:`, replyMarkup);
                 return res.status(200).send('OK');
             }
             // Case B: Telegram ID Not Found - Ask for permission
@@ -206,7 +213,15 @@ exports.handleWebhook = async (req, res) => {
                     telegram_username: username
                 });
 
-                sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`);
+                const replyMarkup = {
+                    keyboard: [
+                        [{ text: "Apply Leave" }, { text: "View Leave Status" }],
+                        [{ text: "Leave Balance" }]
+                    ],
+                    resize_keyboard: true
+                };
+
+                sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`, replyMarkup);
                 return res.status(200).send('OK');
             }
 
