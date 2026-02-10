@@ -21,6 +21,6 @@ exports.delete = async (req, res) => {
 };
 
 exports.getEmployeeByMobileNumber = async (req, res) => {
-  const data = await EmployeeRepository.findByMobileNumber(req.params.mobilenumber);
+  const data = await EmployeeRepository.findByMobileNumber(req.params.mobilenumber.trim());
   data ? res.json(data) : res.status(404).json({ message: "Employee not found" });
 };

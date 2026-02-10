@@ -134,7 +134,7 @@ exports.handleWebhook = async (req, res) => {
 
         // 2. Handle Contact Share
         else if (message.contact) {
-            const contact = message.contact;
+            const contact = message.contact.trim();
             console.log(`[Telegram Webhook] Received Contact: ${JSON.stringify(contact)}`);
 
             // Validation: contact.user_id MUST match message.from.id
@@ -146,7 +146,7 @@ exports.handleWebhook = async (req, res) => {
 
             // Check Mobile Number in Employee Table
             // Check Mobile Number in Employee Table
-            let rawPhoneNumber = contact.phone_number;
+            let rawPhoneNumber = contact.phone_number.trim();
             // Remove spaces, dashes, parentheses, and plus sign
             let phoneNumber = rawPhoneNumber.replace(/[^0-9]/g, '');
 
@@ -177,7 +177,7 @@ exports.handleWebhook = async (req, res) => {
                 // Do not fail the request if logging fails
             }
 
-            let employee = await EmployeeRepository.findByMobileNumber(phoneNumber);
+            let employee = await EmployeeRepository.findByMobileNumber(phoneNumber.trim());
 
             if (!employee && last10 !== phoneNumber) {
                 console.log(`[Telegram Webhook] Exact match failed, trying last 10 digits: ${last10}`);
