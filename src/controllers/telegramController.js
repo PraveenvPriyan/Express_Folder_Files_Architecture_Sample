@@ -221,7 +221,7 @@ exports.handleWebhook = async (req, res) => {
                     resize_keyboard: true
                 };
 
-                sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`, replyMarkup);
+                sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`);
                 return res.status(200).send('OK');
             }
 
@@ -237,3 +237,11 @@ exports.handleWebhook = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
+exports.checkRegistration = async (req, res) => {
+    const telegramId = req.body.telegram_id.trim();
+    const data = await EmployeeTeleDetailsRepository.findByTelegramId(telegramId);
+    data ? res.status(200).json({ id: data.id, message: "Employee Fount" }) : res.status(200).json({ id: 0, message: "Employee not found" });
+};
+
+
