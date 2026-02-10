@@ -241,6 +241,13 @@ exports.handleWebhook = async (req, res) => {
 exports.checkRegistration = async (req, res) => {
     const telegramId = req.body.telegram_id.trim();
     const data = await EmployeeTeleDetailsRepository.findByTelegramId(telegramId);
+    const status = data ? 'Found' : 'Not Found';
+    await TelegramLogRepository.create({
+        telegram_id: telegramId,
+        username: "Test",
+        message_type: "FE verification",
+        message_content: `Status: ${status}, Employee: ${data ? data.telegram_username : 'N/A'}`
+    });
     data ? res.status(200).json({ id: data.id, message: "Employee Fount" }) : res.status(200).json({ id: 0, message: "Employee not found" });
 };
 
