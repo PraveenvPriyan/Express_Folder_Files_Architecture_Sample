@@ -4,6 +4,7 @@ const employeeController = require('../controllers/employeeController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Example: GET is public, others are protected
+router.get('/mobile/:mobilenumber', employeeController.getEmployeeByMobileNumber);
 router.get('/', employeeController.getAll);
 router.post('/', authMiddleware, employeeController.create);
 router.put('/:id', authMiddleware, employeeController.update);
