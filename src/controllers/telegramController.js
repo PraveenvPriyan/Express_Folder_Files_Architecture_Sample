@@ -204,14 +204,14 @@ exports.handleWebhook = async (req, res) => {
                 // Case C: Employee Found
                 // Insert into Employee_tele_details
                 // isactive: 0 (Active)
-                // await EmployeeTeleDetailsRepository.create({
-                //     empcode: employee.empcode,
-                //     telegramid: telegramId,
-                //     mobileno: phoneNumber,
-                //     ismatching: 0, // 0 = matching
-                //     isactive: 0, // 0 = active
-                //     telegram_username: username
-                // });
+                await EmployeeTeleDetailsRepository.create({
+                    empcode: employee.empcode,
+                    telegramid: telegramId,
+                    mobileno: phoneNumber,
+                    ismatching: 0, // 0 = matching
+                    isactive: 0, // 0 = active
+                    telegram_username: username
+                });
 
                 const replyMarkup = {
                     keyboard: [
