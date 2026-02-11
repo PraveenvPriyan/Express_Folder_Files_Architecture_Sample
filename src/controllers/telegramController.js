@@ -198,7 +198,7 @@ exports.handleWebhook = async (req, res) => {
 
             // Case D: Mobile Number Not Found
             if (!employee) {
-                sendMessage(chatId, `❌ Registration Failed\n\nThis mobile number (${phoneNumber}) is not registered in our employee system.\nPlease contact HR for assistance.`);
+                sendMessage(chatId, `❌ Registration Failed\n\nThis mobile number (${phoneNumber}) is not registered in our employee system.\nPlease contact HR for assistance.`, {});
                 return res.status(200).send('OK');
             } else {
                 // Case C: Employee Found
@@ -227,7 +227,7 @@ exports.handleWebhook = async (req, res) => {
 
 
         } else {
-            sendMessage(chatId, "❌ Verification failed. Please share your own contact.");
+            sendMessage(chatId, "❌ Verification failed. Please share your own contact.", {});
             return res.status(200).send('OK');
         }
 
