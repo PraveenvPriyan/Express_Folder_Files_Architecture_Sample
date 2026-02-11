@@ -103,7 +103,7 @@ exports.handleWebhook = async (req, res) => {
                     ],
                     resize_keyboard: true
                 };
-                sendMessage(chatId, `👋 Welcome ${firstName}!\n\nYou are already registered with the Leave Management System.\n\nPlease use the menu to:`, replyMarkup);
+                sendMessage(chatId, `👋 Welcome ${firstName}!\n\nYou are already registered with the Leave Management System.\n\nPlease use the menu to:`, {});
                 return res.status(200).send('OK');
             }
             // Case B: Telegram ID Not Found - Ask for permission
@@ -221,13 +221,13 @@ exports.handleWebhook = async (req, res) => {
                     resize_keyboard: true
                 };
 
-                sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`, replyMarkup);
+                sendMessage(chatId, `✅ Registration Completed!\n\nHi ${employee.name}, your Telegram account has been successfully linked.\n\nYou can now:\n• Apply Leave\n• Track Leave Status\n• View Leave Balance\n\nUse the menu to get started 🚀`, {});
                 return res.status(200).send('OK');
             }
 
 
         } else {
-            sendMessage(chatId, "❌ Verification failed. Please share your own contact.", {});
+            sendMessage(chatId, "❌ Verification failed.\n\nPlease share *your own registered mobile number* to continue.\n\nOnce verified, you can use this bot to:\n• Apply Leave\n• Check Leave Status\n• View Leave Balance.", {});
             return res.status(200).send('OK');
         }
 
