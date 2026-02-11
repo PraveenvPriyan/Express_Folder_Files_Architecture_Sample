@@ -227,7 +227,7 @@ exports.handleWebhook = async (req, res) => {
 
 
         } else {
-            sendMessage(chatId, "❌ Verification failed.\n\nPlease share *your own registered mobile number* to continue.\n\nOnce verified, you can use this bot to:\n• Apply Leave\n• Check Leave Status\n• View Leave Balance.", {});
+            sendMessage(chatId, "Thank you for messaging us.\n\nIf your registration is already complete, you can use the app menu.\nIf not, please complete the registration process to get started.", {});
             return res.status(200).send('OK');
         }
 
